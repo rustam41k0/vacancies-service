@@ -1,11 +1,7 @@
 import os
 from pathlib import Path
-from typing import Dict, List, Optional
-
 from fastapi import APIRouter, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
-from starlette.responses import FileResponse
-
 from src.utils import upload_image, PathSelector, get_image
 
 router = APIRouter()

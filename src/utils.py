@@ -12,6 +12,7 @@ class PathSelector(Enum):
 
 async def upload_image(file: UploadFile, place: PathSelector):
     image_name = file.filename
+    os.makedirs(str(place.value), exist_ok=True)
     image_path = place.value + image_name
     check_valid_extension(image_name)
     check_image_exists(image_path, image_name)
@@ -23,7 +24,7 @@ async def upload_image(file: UploadFile, place: PathSelector):
 
 def check_image_exists(photo_path: str, image_name: str):
     if os.path.exists(photo_path):
-        raise Exception(f"File with name {image_name} already exists")
+        raise Exception(f"File with name {image_name} already exists, rename your image")
 
 
 def check_valid_extension(image_name: str):
