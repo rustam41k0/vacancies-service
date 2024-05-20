@@ -26,7 +26,6 @@ async def get_all_photos():
     if os.path.exists(media_dir):
         photo_names = [file.name for file in Path(media_dir).iterdir() if file.is_file()]
     photos = []
-
     for photo_name in photo_names:
         image = get_image(media_dir + photo_name)
         photos.append(image)
