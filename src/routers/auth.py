@@ -22,7 +22,7 @@ router.include_router(
 )
 
 
-@router.put("/auth/change-password")
+@router.post("/auth/change-password")
 async def change_password(
         user: CustomUser = Depends(current_user),
         password: str = Form(...),
