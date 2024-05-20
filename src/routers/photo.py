@@ -22,8 +22,11 @@ async def upload_photo(file: UploadFile):
 @router.get("/photo")  # TODO: в нужном ли формате выдаются картинки?
 async def get_all_photos():
     media_dir = str(PathSelector.photo.value)
-    photo_names = [file.name for file in Path(media_dir).iterdir() if file.is_file()]
+    photo_names = []
+    if os.path.exists(media_dir):
+        photo_names = [file.name for file in Path(media_dir).iterdir() if file.is_file()]
     photos = []
+
     for photo_name in photo_names:
         image = get_image(media_dir + photo_name)
         photos.append(image)
