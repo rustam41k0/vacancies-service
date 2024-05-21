@@ -1,10 +1,9 @@
 import uuid
 from src.auth.custom_fast_api_users import CustomFastAPIUsers, CustomUser
-from src.models import Company
-from fastapi_users.authentication import CookieTransport
+from fastapi_users.authentication import BearerTransport
 from fastapi_users.authentication import JWTStrategy
 from fastapi import Depends, Request
-from fastapi_users import UUIDIDMixin, BaseUserManager, FastAPIUsers
+from fastapi_users import UUIDIDMixin, BaseUserManager
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db import get_async_session
@@ -12,17 +11,17 @@ from typing import Optional
 from fastapi_users.authentication import AuthenticationBackend
 
 
-cookie_transport = CookieTransport(cookie_name="olegs_cookie", cookie_max_age=3600)
+bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
 SECRET = "super_secret_pass"
 
 
 def get_jwt_strategy() -> JWTStrategy:
-    return JWTStrategy(secret=SECRET, lifetime_seconds=36000)
+    return JWTStrategy(secret=SECRET, lifetime_seconds=604800)  # Одна неделя
 
 
 auth_backend = AuthenticationBackend(
     name="jwt",
-    transport=cookie_transport,
+    transport=bearer_transport,
     get_strategy=get_jwt_strategy,
 )
 

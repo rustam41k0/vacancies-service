@@ -1,6 +1,10 @@
+import json
+from typing import List
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import load_only
 from starlette.responses import JSONResponse
 from src.auth.auth import CustomUser, current_user
 from src.db import get_async_session
@@ -20,6 +24,13 @@ async def get_company(uuid: UUID, session: AsyncSession = Depends(get_async_sess
     if company.image:
         company.image = get_image(company.image)  # заменяем путь до картинки картинкой
     return company
+
+
+@router.get("/company", response_model=List[CompanyRead])
+async def get_companies(session: AsyncSession = Depends(get_async_session)):
+    query = select(Company).options(load_only(Company.id, Company.inn, Company.email, Company.is_active, Company.is_verified, Company.is_superuser, Company.company_name, Company.description, Company.field_of_activity, Company.year_of_foundation, Company.city, Company.street, Company.house, Company.number_of_employees, Company.image, Company.personal_site, Company.phone, Company.contact_email, Company.social_network_link, Company.registered_at))
+    companies = await session.execute(query)
+    return companies.scalars().all()
 
 
 @router.put("/company", response_model=dict)
