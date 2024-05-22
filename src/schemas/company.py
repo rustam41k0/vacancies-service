@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
-from fastapi import UploadFile
 from fastapi_users import schemas
 from pydantic import BaseModel
 
@@ -21,7 +20,7 @@ class CompanyRead(schemas.BaseUser):
     street: Optional[str]
     house: Optional[str]
     number_of_employees: Optional[str]
-    image: Optional[str]
+    image_id: Optional[UUID]
     personal_site: Optional[str]
     phone: Optional[str]
     contact_email: Optional[str]
@@ -40,7 +39,6 @@ class CompanyCreate(schemas.BaseUserCreate):
 
 class CompanyUpdate(BaseModel):
     description: Optional[str] = None
-    file: UploadFile = None
     field_of_activity: Optional[str] = None
     year_of_foundation: Optional[int] = None
     city: Optional[str] = None

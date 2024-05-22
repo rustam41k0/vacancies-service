@@ -1,30 +1,17 @@
-import os
-from enum import Enum
-
+import uuid
+import boto3
 from fastapi import UploadFile
-from starlette.responses import FileResponse
+from sqlalchemy.ext.asyncio import AsyncSession
+from src.config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BUCKET_NAME
+from src.models import Image
 
 
-class PathSelector(Enum):
-    company = '../media/company/'
-    photo = '../media/photo/'
-
-
-async def upload_image(file: UploadFile, place: PathSelector):
-    image_name = file.filename
-    os.makedirs(str(place.value), exist_ok=True)
-    image_path = place.value + image_name
-    check_valid_extension(image_name)
-    check_image_exists(image_path, image_name)
-    contents = await file.read()
-    with open(image_path, "wb") as f:
-        f.write(contents)
-    return image_path
-
-
-def check_image_exists(photo_path: str, image_name: str):
-    if os.path.exists(photo_path):
-        raise Exception(f"File with name {image_name} already exists, rename your image")
+s3 = boto3.client("s3",
+                  aws_access_key_id=AWS_ACCESS_KEY_ID,
+                  aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+                  region_name='ru-central1',
+                  endpoint_url='https://storage.yandexcloud.net'
+                  )
 
 
 def check_valid_extension(image_name: str):
@@ -33,7 +20,19 @@ def check_valid_extension(image_name: str):
         raise Exception("Invalid image format")
 
 
-def get_image(image_path: str) -> FileResponse:
-    if os.path.exists(image_path):
-        return FileResponse(image_path)
-    raise Exception("Image doesn't exist, invalid path")
+async def upload_image_to_s3_and_save_url_to_db(file: UploadFile, session: AsyncSession) -> uuid.UUID:
+    random_uuid = uuid.uuid4()
+    check_valid_extension(file.filename)
+    s3.put_object(Body=file.file.read(), Bucket=BUCKET_NAME, Key=str(random_uuid))
+    url = f"https://{BUCKET_NAME}.storage.yandexcloud.net/{random_uuid}"
+    image = Image(id=random_uuid, name=file.filename, image_url=url)
+    session.add(image)
+    await session.commit()
+    return random_uuid
+
+
+async def delete_image_from_s3_and_from_db(image_uuid, session):
+    s3.delete_object(Bucket=BUCKET_NAME, Key=str(image_uuid))
+    image = await session.get(Image, image_uuid)
+    session.delete(image)
+    await session.commit()
