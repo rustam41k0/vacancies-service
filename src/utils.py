@@ -16,15 +16,18 @@ s3 = boto3.client("s3",
 
 def check_valid_extension(image_name: str):
     image_extensions = (".jpg", ".jpeg", ".png")
-    if not image_name.lower().endswith(image_extensions):
-        raise Exception("Invalid image format")
+    for ext in image_extensions:
+        if image_name.lower().endswith(ext):
+            return ext
+    raise Exception("Invalid image format")
 
 
 async def upload_image_to_s3_and_save_url_to_db(file: UploadFile, session: AsyncSession) -> uuid.UUID:
     random_uuid = uuid.uuid4()
-    check_valid_extension(file.filename)
-    s3.put_object(Body=file.file.read(), Bucket=BUCKET_NAME, Key=str(random_uuid))
-    url = f"https://{BUCKET_NAME}.storage.yandexcloud.net/{random_uuid}"
+    image_extension = check_valid_extension(file.filename)
+    image_name = str(random_uuid) + image_extension
+    s3.put_object(Body=file.file.read(), Bucket=BUCKET_NAME, Key=image_name)
+    url = f"https://{BUCKET_NAME}.storage.yandexcloud.net/{image_name}"
     image = Image(id=random_uuid, name=file.filename, image_url=url)
     session.add(image)
     await session.commit()
