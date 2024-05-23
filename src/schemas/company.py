@@ -19,7 +19,7 @@ class CompanyRead(schemas.BaseUser):
     city: Optional[str]
     street: Optional[str]
     house: Optional[str]
-    number_of_employees: Optional[str]
+    number_of_employees: Optional[int]
     image_id: Optional[UUID]
     personal_site: Optional[str]
     phone: Optional[str]
