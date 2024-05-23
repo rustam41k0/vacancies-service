@@ -24,6 +24,12 @@ async def upload_photo(file: UploadFile, session: AsyncSession = Depends(get_asy
         return HTTPException(status_code=500, detail=str(ex))
 
 
+@router.get("/photo/{uuid}", response_model=ImageRead)
+async def get_photo(uuid: UUID, session: AsyncSession = Depends(get_async_session)):
+    image = await session.get(Image, uuid)
+    return image
+
+
 @router.get("/photo", response_model=List[ImageRead])
 async def get_all_photos(session: AsyncSession = Depends(get_async_session)):
     query = select(Image)
