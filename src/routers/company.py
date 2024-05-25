@@ -40,10 +40,16 @@ async def update_company(cmp: CompanyUpdate,
                          session: AsyncSession = Depends(get_async_session),
                          user: CustomUser = Depends(current_user)):
     company = await session.get(Company, user.id)
+    query = select(Company).filter(Company.image_id == cmp.image_id)
+    image = await session.execute(query)
+    if not image.scalars().all():
+        cmp.image_id = None
+
     for key, val in cmp:
         setattr(company, key, val)
+
     await session.commit()
-    return JSONResponse(content={'message': 'Updated successfully'}, status_code=200)
+    return JSONResponse(content={'message': 'Updated successfully', 'image_id': str(company.image_id)}, status_code=200)
 
 
 @router.put("/company/image")

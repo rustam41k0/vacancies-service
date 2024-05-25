@@ -45,6 +45,7 @@ class CompanyUpdate(BaseModel):
     street: Optional[str] = None
     house: Optional[str] = None
     number_of_employees: Optional[int] = None
+    image_id: Optional[UUID] = None
     personal_site: Optional[str] = None
     phone: Optional[str] = None
     social_network_link: Optional[str] = None

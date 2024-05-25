@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from uuid import UUID
 from fastapi import APIRouter, UploadFile, HTTPException, Depends
 from fastapi.responses import JSONResponse
@@ -24,7 +24,7 @@ async def upload_photo(file: UploadFile, session: AsyncSession = Depends(get_asy
         return HTTPException(status_code=500, detail=str(ex))
 
 
-@router.get("/photo/{uuid}", response_model=ImageRead)
+@router.get("/photo/{uuid}", response_model=Union[ImageRead, None])
 async def get_photo(uuid: UUID, session: AsyncSession = Depends(get_async_session)):
     image = await session.get(Image, uuid)
     return image
