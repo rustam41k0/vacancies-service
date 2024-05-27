@@ -24,9 +24,9 @@ router.include_router(
 
 @router.post("/auth/change-password")
 async def change_password(
+        password: str,
+        new_password: str,
         user: CustomUser = Depends(current_user),
-        password: str = Form(...),
-        new_password: str = Form(...),
         session: AsyncSession = Depends(get_async_session)
 ):
     psh = PasswordHelper()
