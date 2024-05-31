@@ -4,7 +4,7 @@ from src.auth.auth import auth_backend, fastapi_users, current_user
 from src.db import get_async_session
 from src.models import CustomUser
 from src.schemas.company import CompanyRead, CompanyCreate
-from fastapi import APIRouter, Depends, Form, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi_users.password import PasswordHelper
 
 router = APIRouter()

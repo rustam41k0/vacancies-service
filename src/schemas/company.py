@@ -3,6 +3,7 @@ from typing import Optional
 from uuid import UUID
 from fastapi_users import schemas
 from pydantic import BaseModel
+from src.schemas.photo import ImageRead
 
 
 class CompanyRead(schemas.BaseUser):
@@ -20,12 +21,13 @@ class CompanyRead(schemas.BaseUser):
     street: Optional[str]
     house: Optional[str]
     number_of_employees: Optional[int]
-    image_id: Optional[UUID]
     personal_site: Optional[str]
     phone: Optional[str]
     contact_email: Optional[str]
     social_network_link: Optional[str]
     registered_at: Optional[datetime]
+    image_id: Optional[UUID]
+    image_url: Optional[str]
 
 
 class CompanyCreate(schemas.BaseUserCreate):
@@ -45,7 +47,7 @@ class CompanyUpdate(BaseModel):
     street: Optional[str] = None
     house: Optional[str] = None
     number_of_employees: Optional[int] = None
-    image_id: Optional[UUID] = None
+    # image_id: Optional[UUID] = None
     personal_site: Optional[str] = None
     phone: Optional[str] = None
     social_network_link: Optional[str] = None

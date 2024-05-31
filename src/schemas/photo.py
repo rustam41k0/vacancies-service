@@ -9,3 +9,4 @@ class ImageRead(BaseModel):
     name: str
     image_url: str
     created_at: Optional[datetime] = None
+    company_id: Optional[UUID]

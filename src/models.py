@@ -38,7 +38,6 @@ class Company(SQLAlchemyBaseUserTableUUID, Base):
     street = Column(String(255), nullable=True)
     house = Column(String(255), nullable=True)
     number_of_employees = Column(Integer, nullable=True)
-    image_id = Column(UUID(as_uuid=True), ForeignKey('image.id', ondelete='CASCADE'), nullable=True)
     personal_site = Column(String(255), nullable=True)
     phone = Column(String(255), nullable=True)
     contact_email = Column(String(255), nullable=True)
@@ -53,6 +52,7 @@ class Image(Base):
     name = Column(String(255), nullable=False)
     image_url = Column(String(255), nullable=False)
     created_at = Column(TIMESTAMP, default=datetime.utcnow)
+    company_id = Column(UUID(as_uuid=True), ForeignKey('company.id', ondelete='CASCADE'), nullable=True)
 
 
 class CustomUser(Company):
