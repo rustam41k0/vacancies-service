@@ -1,15 +1,14 @@
 from typing import List
+from sqlalchemy import text
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, UploadFile
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import load_only
 from starlette.responses import JSONResponse
 from src.auth.auth import CustomUser, current_user
 from src.db import get_async_session
 from src.models import Company
 from src.schemas.company import CompanyUpdate, CompanyRead
-from src.utils import upload_image_to_s3_and_save_url_to_db, delete_image_from_s3_and_from_db
+from src.utils import get_company_image
 
 router = APIRouter()
 
@@ -19,20 +18,26 @@ async def get_company(uuid: UUID, session: AsyncSession = Depends(get_async_sess
     company = await session.get(Company, uuid)
     if not company:
         raise HTTPException(status_code=404, detail=f"Company doesn't exist")
-    del company.hashed_password
+
+    company.image_id = None
+    company.image_url = None
+    image = await get_company_image(uuid, session)
+    if image:
+        company.image_id = image.id
+        company.image_url = image.image_url
     return company
 
 
 @router.get("/company", response_model=List[CompanyRead])
 async def get_companies(session: AsyncSession = Depends(get_async_session)):
-    query = select(Company).options(
-        load_only(Company.id, Company.inn, Company.email, Company.is_active, Company.is_verified, Company.is_superuser,
-                  Company.company_name, Company.description, Company.field_of_activity, Company.year_of_foundation,
-                  Company.city, Company.street, Company.house, Company.number_of_employees, Company.image_id,
-                  Company.personal_site, Company.phone, Company.contact_email, Company.social_network_link,
-                  Company.registered_at))
+    query = text(
+        'SELECT c.id, c.inn, c.email, c.is_active, c.is_superuser, c.is_verified, c.company_name, '
+        'c.description, c.field_of_activity, c.year_of_foundation, c.city, c.street, c.house, '
+        'c.number_of_employees, c.personal_site, c.phone, c.contact_email, c.social_network_link, '
+        'c.registered_at, i.id AS image_id, i.image_url FROM company AS c LEFT JOIN image AS i ON i.company_id = c.id;'
+    )
     companies = await session.execute(query)
-    return companies.scalars().all()
+    return companies.mappings().all()
 
 
 @router.put("/company")
@@ -40,40 +45,7 @@ async def update_company(cmp: CompanyUpdate,
                          session: AsyncSession = Depends(get_async_session),
                          user: CustomUser = Depends(current_user)):
     company = await session.get(Company, user.id)
-    query = select(Company).filter(Company.image_id == cmp.image_id)
-    image = await session.execute(query)
-    if not image.scalars().all():
-        cmp.image_id = None
-
     for key, val in cmp:
         setattr(company, key, val)
-
     await session.commit()
-    return JSONResponse(content={'message': 'Updated successfully', 'image_id': str(company.image_id)}, status_code=200)
-
-
-@router.put("/company/image")
-async def upload_company_image(file: UploadFile,
-                               session: AsyncSession = Depends(get_async_session),
-                               user: CustomUser = Depends(current_user)):
-    company = await session.get(Company, user.id)
-    try:
-        image_uuid = await upload_image_to_s3_and_save_url_to_db(file, session)
-        company.image_id = image_uuid
-        await session.commit()
-        return JSONResponse(content={'message': 'Updated successfully'}, status_code=200)
-    except Exception as ex:
-        return HTTPException(status_code=500, detail=str(ex))
-
-
-@router.delete("/company/image")
-async def delete_company_image(session: AsyncSession = Depends(get_async_session),
-                               user: CustomUser = Depends(current_user)):
-    company = await session.get(Company, user.id)
-    if company.image_id:
-        await delete_image_from_s3_and_from_db(company.image_id, session)
-        company.image_id = None
-        await session.commit()
-        return JSONResponse(content={'message': 'Deleted successfully'}, status_code=200)
-    else:
-        return HTTPException(status_code=400, detail="Company image doesn't exist")
+    return JSONResponse(content={'message': 'Updated successfully'}, status_code=200)
