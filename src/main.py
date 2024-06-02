@@ -15,11 +15,16 @@ app.include_router(company_router, tags=['company'])
 app.include_router(photo_router, tags=['photo'])
 app.include_router(auth_router, tags=['auth'])
 
-logging.config.dictConfig(log_config)
+# logging.config.dictConfig(log_config)
+
+origins = [
+    "http://localhost:8000/",
+    "https://front-git-main-olgnites-projects.vercel.app/",
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,4 +32,4 @@ app.add_middleware(
 
 
 if __name__ == "__main__":
-    uvicorn.run('main:app', host="127.0.0.1", port=8000, reload=True, log_config=log_config)
+    uvicorn.run('main:app', host="127.0.0.1", port=8000, reload=True) #, log_config=log_config)
