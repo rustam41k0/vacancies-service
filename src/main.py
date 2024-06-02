@@ -17,14 +17,10 @@ app.include_router(auth_router, tags=['auth'])
 
 # logging.config.dictConfig(log_config)
 
-origins = [
-    "http://localhost:8000/",
-    "https://front-git-main-olgnites-projects.vercel.app/",
-]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
