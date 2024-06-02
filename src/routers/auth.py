@@ -3,7 +3,7 @@ from starlette.responses import JSONResponse
 from src.auth.auth import auth_backend, fastapi_users, current_user
 from src.db import get_async_session
 from src.models import CustomUser
-from src.schemas.company import CompanyRead, CompanyCreate
+from src.schemas.company import CompanyReadAuth, CompanyCreate
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_users.password import PasswordHelper
 
@@ -16,7 +16,7 @@ router.include_router(
 )
 
 router.include_router(
-    fastapi_users.get_register_router(CompanyRead, CompanyCreate),
+    fastapi_users.get_register_router(CompanyReadAuth, CompanyCreate),
     prefix="/auth",
     tags=["auth"],
 )

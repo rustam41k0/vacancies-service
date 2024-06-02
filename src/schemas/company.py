@@ -6,6 +6,28 @@ from pydantic import BaseModel
 from src.schemas.photo import ImageRead
 
 
+class CompanyReadAuth(schemas.BaseUser):
+    id: UUID
+    inn: str
+    email: str
+    is_active: bool = True
+    is_superuser: bool = False
+    is_verified: bool = False
+    company_name: Optional[str]
+    description: Optional[str]
+    field_of_activity: Optional[str]
+    year_of_foundation: Optional[int]
+    city: Optional[str]
+    street: Optional[str]
+    house: Optional[str]
+    number_of_employees: Optional[int]
+    personal_site: Optional[str]
+    phone: Optional[str]
+    contact_email: Optional[str]
+    social_network_link: Optional[str]
+    registered_at: Optional[datetime]
+
+
 class CompanyRead(schemas.BaseUser):
     id: UUID
     inn: str
