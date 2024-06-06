@@ -54,6 +54,7 @@ class CompanyRead(schemas.BaseUser):
 
 class CompanyCreate(schemas.BaseUserCreate):
     inn: str
+    company_name: str
     email: str
     password: str
     is_active: Optional[bool] = True
