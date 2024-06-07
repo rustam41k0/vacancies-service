@@ -15,7 +15,7 @@ app.include_router(company_router, tags=['company'])
 app.include_router(photo_router, tags=['photo'])
 app.include_router(auth_router, tags=['auth'])
 
-# logging.config.dictConfig(log_config)
+logging.config.dictConfig(log_config)
 
 
 app.add_middleware(
@@ -28,4 +28,4 @@ app.add_middleware(
 
 
 if __name__ == "__main__":
-    uvicorn.run('main:app', host="127.0.0.1", port=8000, reload=True) #, log_config=log_config)
+    uvicorn.run('main:app', host="0.0.0.0", port=8080, reload=True, log_config=log_config)
