@@ -34,7 +34,7 @@ async def upload_image_to_s3_and_save_url_to_db(file: UploadFile,
 
     if company_id:
         old_image = await get_company_image(company_id, session)
-        await delete_image_from_s3_and_from_db(old_image.id, session)
+        await delete_image_from_s3_and_from_db(old_image.id if old_image else None, session)
 
     new_image = Image(id=random_uuid, name=file.filename, image_url=url, company_id=company_id)
     session.add(new_image)
@@ -43,12 +43,13 @@ async def upload_image_to_s3_and_save_url_to_db(file: UploadFile,
 
 
 async def delete_image_from_s3_and_from_db(image_uuid, session):
-    s3.delete_object(Bucket=BUCKET_NAME, Key=str(image_uuid))
-    image = await session.get(Image, image_uuid)
-    if image:
-        await session.delete(image)
-        await session.commit()
-        return True
+    if image_uuid:
+        s3.delete_object(Bucket=BUCKET_NAME, Key=str(image_uuid))
+        image = await session.get(Image, image_uuid)
+        if image:
+            await session.delete(image)
+            await session.commit()
+            return True
     return False
 
 
